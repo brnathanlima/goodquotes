@@ -2,12 +2,27 @@
 <?php include './classes/database.php'; ?>
 <?php include './classes/quote.php'; ?>
 <?php
-  try {
-    $quoteObj = new Quote();
-    $quotes = $quoteObj->index();
-  } catch (\Throwable $th) {
-    echo '<div class="alert alert-danger">'.get_class($e).' on line '.$e->getLine().' of '.$e->getFile().': '.$e->getMessage().'</div>';
-  }
+    $get = filter_input_array(INPUT_GET, FILTER_SANITIZE_NUMBER_INT);
+    try {
+        $quoteObj = new Quote();
+        $quote = $quoteObj->getSingle($get['id']);
+    } catch (\Throwable $th) {
+        echo '<div class="alert alert-danger">'.get_class($e).' on line '.$e->getLine().' of '.$e->getFile().': '.$e->getMessage().'</div>';
+    }
+
+    $post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+    if (isset($post['submit'])) {
+        $id = $get['id'];
+        $text = $post['text'] ?: null;
+        $creator = $post['creator'] ?: 'Unkown';
+        
+        try {
+            $quoteObj = new Quote();
+            $quoteObj->update($id, $text, $creator);
+        } catch (\Throwable $th) {
+            echo '<div class="alert alert-danger">'.get_class($e).' on line '.$e->getLine().' of '.$e->getFile().': '.$e->getMessage().'</div>';
+        }
+    }
 ?>
 <!doctype html>
 <html lang="en">
@@ -17,7 +32,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v3.8.5">
-    <title>Good Quotes</title>
+    <title>Add Quote</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/jumbotron/">
     <link rel="stylesheet" href="assets/bootstrap/dist/css/bootstrap.min.css">
@@ -41,32 +56,29 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-  <a class="navbar-brand" href="#">GoodQuotes</a>
+  <a class="navbar-brand" href="index.php">GoodQuotes</a>
 </nav>
 
 <main role="main">
 
-  <!-- Main jumbotron for a primary marketing message or call to action -->
-  <div class="jumbotron">
-    <div class="container">
-      <h1 class="display-3">Got a quote?</h1>
-      <p>Store your favorite quotes here to access and read them daily and better your life</p>
-      <p><a class="btn btn-primary btn-lg" href="new.php" role="button">Add quote now</a></p>
-    </div>
-  </div>
-
   <div class="container">
     <!-- Example row of columns -->
-    <?php foreach($quotes as $quote): ?>
-    <hr>
-    <div class="row">  
-      <div class="col-md-12">
-        <h2><?= $quote['text']; ?></h2>
-        <p><?= $quote['creator']; ?></p>
-        <p><a class="btn btn-secondary" href="edit.php?id=<?= $quote['id'] ?>" role="button">View details &raquo;</a></p>
-      </div>
+    <div class="row">
+    <h2 class="page-header">Add new quote</h2>
     </div>
-    <?php endforeach; ?>
+    <div class="row">
+      <form method="post" action="edit.php?id=<?= $get['id'] ?>">
+        <div class="form-group">
+            <label for="text">Quote text</label>
+            <input type="text" name="text" id="text" class="form-control" value="<?= $quote['text'] ?>">
+        </div>
+        <div class="form-group">
+            <label for="creator">Creator</label>
+            <input type="text" name="creator" id="creator" class="form-control" value="<?= $quote['creator'] ?>">
+        </div>
+        <button type="submit" name="submit" class="btn btn-success">Submit</button>
+      </form>
+    </div>
 
     <hr>
 
