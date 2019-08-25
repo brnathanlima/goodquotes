@@ -14,4 +14,20 @@ class Quote extends Database
             }
         }
     }
+
+    public function add(string $text, string $creator)
+    {
+        try {
+            $this->query('INSERT INTO quotes(text, creator) VALUES(:text, :creator)');
+            $this->bind(':text', $text);
+            $this->bind(':creator', $creator);
+            $this->execute();
+        } catch (\Throwable $th) {
+            echo '<div class="alert alert-danger">'.get_class($e).' on line '.$e->getLine().' of '.$e->getFile().': '.$e->getMessage().'</div>';
+        }
+
+        if ($this->lastInsertId()) {
+            header('Location: index.php');
+        }
+    }
 }

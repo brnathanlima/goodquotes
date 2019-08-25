@@ -61,7 +61,7 @@ class Database
         }
     }
 
-    public function resultSet()
+    public function resultSet(): array
     {
         try {
             $this->execute();
