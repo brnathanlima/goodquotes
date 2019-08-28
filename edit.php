@@ -2,14 +2,6 @@
 <?php include './classes/database.php'; ?>
 <?php include './classes/quote.php'; ?>
 <?php
-    $get = filter_input_array(INPUT_GET, FILTER_SANITIZE_NUMBER_INT);
-    try {
-        $quoteObj = new Quote();
-        $quote = $quoteObj->getSingle($get['id']);
-    } catch (\Throwable $th) {
-        echo '<div class="alert alert-danger">'.get_class($e).' on line '.$e->getLine().' of '.$e->getFile().': '.$e->getMessage().'</div>';
-    }
-
     $post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
     if (isset($post['submit'])) {
         $id = $get['id'];
@@ -20,8 +12,26 @@
             $quoteObj = new Quote();
             $quoteObj->update($id, $text, $creator);
         } catch (\Throwable $th) {
-            echo '<div class="alert alert-danger">'.get_class($e).' on line '.$e->getLine().' of '.$e->getFile().': '.$e->getMessage().'</div>';
+            echo '<div class="alert alert-danger">'.get_class($th).' on line '.$th->getLine().' of '.$th->getFile().': '.$th->getMessage().'</div>';
         }
+    }
+
+    $get = filter_input_array(INPUT_GET, FILTER_SANITIZE_NUMBER_INT);
+    if (isset($post['delete'])) {
+        $id = $get['id'];
+        try {
+            $quoteObj = new Quote();
+            $quoteObj->remove($id);
+        } catch (\Throwable $th) {
+            echo '<div class="alert alert-danger">'.get_class($th).' on line '.$th->getLine().' of '.$th->getFile().': '.$th->getMessage().'</div>';
+        }
+    }
+
+    try {
+        $quoteObj = new Quote();
+        $quote = $quoteObj->getSingle(intval($get['id']));
+    } catch (\Throwable $th) {
+        echo '<div class="alert alert-danger">'.get_class($th).' on line '.$th->getLine().' of '.$th->getFile().': '.$th->getMessage().'</div>';
     }
 ?>
 <!doctype html>
@@ -64,20 +74,24 @@
   <div class="container">
     <!-- Example row of columns -->
     <div class="row">
-    <h2 class="page-header">Add new quote</h2>
-    </div>
-    <div class="row">
-      <form method="post" action="edit.php?id=<?= $get['id'] ?>">
-        <div class="form-group">
-            <label for="text">Quote text</label>
-            <input type="text" name="text" id="text" class="form-control" value="<?= $quote['text'] ?>">
+        <h2 class="page-header">Edit quote
+        <form method="post" action="edit.php?id=<?= $get['id']?>" class="pull-right">
+            <button type="submit" name="delete" class="btn btn-danger">Delete</button>
+        </form>
+        </h2>
         </div>
-        <div class="form-group">
-            <label for="creator">Creator</label>
-            <input type="text" name="creator" id="creator" class="form-control" value="<?= $quote['creator'] ?>">
-        </div>
-        <button type="submit" name="submit" class="btn btn-success">Submit</button>
-      </form>
+        <div class="row">
+        <form method="post" action="edit.php?id=<?= $get['id'] ?>">
+            <div class="form-group">
+                <label for="text">Quote text</label>
+                <input type="text" name="text" id="text" class="form-control" value="<?= $quote['text'] ?>">
+            </div>
+            <div class="form-group">
+                <label for="creator">Creator</label>
+                <input type="text" name="creator" id="creator" class="form-control" value="<?= $quote['creator'] ?>">
+            </div>
+            <button type="submit" name="submit" class="btn btn-success">Submit</button>
+        </form>
     </div>
 
     <hr>

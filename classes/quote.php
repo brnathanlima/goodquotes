@@ -23,7 +23,7 @@ class Quote extends Database
             $this->bind(':creator', $creator);
             $this->execute();
         } catch (\Throwable $th) {
-            echo '<div class="alert alert-danger">'.get_class($e).' on line '.$e->getLine().' of '.$e->getFile().': '.$e->getMessage().'</div>';
+            echo '<div class="alert alert-danger">'.get_class($th).' on line '.$th->getLine().' of '.$th->getFile().': '.$th->getMessage().'</div>';
         }
 
         if ($this->lastInsertId()) {
@@ -39,7 +39,7 @@ class Quote extends Database
             $row = $this->single();
             return $row;
         } catch (\Throwable $th) {
-            echo '<div class="alert alert-danger">'.get_class($e).' on line '.$e->getLine().' of '.$e->getFile().': '.$e->getMessage().'</div>';
+            echo '<div class="alert alert-danger">'.get_class($th).' on line '.$th->getLine().' of '.$th->getFile().': '.$th->getMessage().'</div>';
         }
     }
 
@@ -52,8 +52,21 @@ class Quote extends Database
             $this->bind(':id', $id);
             $this->execute();
         } catch (\Throwable $th) {
-            echo '<div class="alert alert-danger">'.get_class($e).' on line '.$e->getLine().' of '.$e->getFile().': '.$e->getMessage().'</div>';
+            echo '<div class="alert alert-danger">'.get_class($th).' on line '.$th->getLine().' of '.$th->getFile().': '.$th->getMessage().'</div>';
         }
         header('Location: index.php');
+    }
+
+    public function remove(int $id)
+    {
+        try {
+            $this->query('DELETE FROM quotes WHERE id=:id');
+            $this->bind(':id', $id);
+            $this->execute();
+        } catch (\Throwable $th) {
+            echo '<div class="alert alert-danger">'.get_class($th).' on line '.$th->getLine().' of '.$th->getFile().': '.$th->getMessage().'</div>';
+        } finally {
+            header('Location: index.php');
+        }
     }
 }
